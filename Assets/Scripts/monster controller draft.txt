@@ -1,0 +1,36 @@
+//Basic jist of node traversal system
+have a bunch of empty game objects around area. Each one can link to multiple others as possible paths to go down. 
+
+
+
+//set speed that it moves as a default for the number of books picked up
+public  book speed 1-5(x)
+
+//node where it starts
+public start node
+//node its moving to next
+public next node
+
+//a bool to tell if the monster is currently tracking a specific location
+public hunting bool
+//vector containing coords where it needs to hunt to
+public huntingPos vec3
+
+update(){
+	if hunting(){
+		move to huntingPos
+		when there if nothing is found find nearest node and return to random movement
+			set hunting to false
+	}
+
+	if not hunting{
+		move to next node. 
+		when it reaches choose a random node to go to - the previous node it came from
+		as more books are collected by player
+			add weight to nodes which are closer to player
+	}
+	if monster is X distance away from player (x distance decreasing the more books are collected){
+		roll random chance. higher chance the more books are collected. 
+			if hit teleport to random node Y distance away from player. Y also decreasing the more books. 
+	}
+}
