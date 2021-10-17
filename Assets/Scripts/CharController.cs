@@ -18,7 +18,7 @@ public class CharController : MonoBehaviour
 	public float lookXLimit = 45.0f;
 	public float pickupRange = 4.0f;
 
-    public Text tooltip;
+    	public Text tooltip;
 	public GameObject monster;
 	public GameObject deathScreen;
 	public bool isDead;
