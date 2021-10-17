@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent (typeof(CharacterController))]
 
@@ -15,9 +16,12 @@ public class CharController : MonoBehaviour
 	public Camera playerCamera;
 	public float lookSpeed = 2.0f;
 	public float lookXLimit = 45.0f;
-	public float pickupRange = 10.0f;
+	public float pickupRange = 4.0f;
 
+    public Text tooltip;
 	public GameObject monster;
+	public GameObject deathScreen;
+	public bool isDead;
 	private MonterController monsterController;
 
 	CharacterController characterController;
@@ -38,6 +42,9 @@ public class CharController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         rotation.y = transform.eulerAngles.y;
         monsterController = monster.GetComponent<MonterController>();
+        deathScreen.SetActive(false);
+        isDead = false;	
+        tooltip.text = ""; 
     }
 
     // Update is called once per frame
@@ -50,27 +57,34 @@ public class CharController : MonoBehaviour
             float curSpeedX;
             float curSpeedY;
 
-            //Stuff for pickup Basically, if the ray cast hits an object, then add it to inventory and destroy it
+            //Stuff for pickup Basically, if the ray cast hits an object, then add it to inventory and banish it to the shadow realm
             RaycastHit infront;
             //Prob need to adjust the 10.0f to make it a good grab range.
             if(Physics.Raycast(playerCamera.transform.position,playerCamera.transform.rotation * Vector3.forward, out infront, pickupRange)){
             	GameObject x = infront.collider.gameObject;
-            	//Debug.Log("Looking At something" + x.tag);
-            	if ((x.tag.Equals("PickUp")) & (Input.GetMouseButtonDown(0))){
-            		//Add Message saying click to pick up on canvas
-            		inventory.Add(x);
-            		x.transform.position = new Vector3(999.0f,999.0f,999.0f);
-            		//Debug.Log("Added to Invetory"+inventory.Count+x.name);
+            	if (x.tag.Equals("PickUp")){
+                    tooltip.text = "Left Click to pick up"; 
+                    if (Input.GetMouseButtonDown(0)){
+            		  inventory.Add(x);
+            		  x.transform.position = new Vector3(999.0f,999.0f,999.0f);
+                    }
             	}
-            	else if ((x.tag.Equals("Receptor")) & (Input.GetMouseButtonDown(0))){
-            		if(inventory.Count >0)
-            		{
-            			//	display message saying something like "place book"
-            			Receptor y = x.GetComponent<Receptor>();
-            			y.AddBook(inventory[0]);
-            			inventory.RemoveAt(0);
+
+            	else if (x.tag.Equals("Receptor")){
+                    tooltip.text = "Left Click to drop off";
+            		if (Input.GetMouseButtonDown(0)){
+                        if(inventory.Count >0){
+            			     Receptor y = x.GetComponent<Receptor>();
+            			     y.AddBook(inventory[0]);
+            			     inventory.RemoveAt(0);
+                        }
+                         
             		}
             	}
+            }
+
+            else{
+                tooltip.text = ""; 
             }
       
             // Crawling is prob gonna be using the ctrl keys, the sticky key was just driving me crazy.
@@ -163,11 +177,11 @@ public class CharController : MonoBehaviour
      	else if (collision.gameObject.tag == "Death"){
      		if (!hidden){
      			Debug.Log("You dead boi");
-     			/*
-				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
-						TODO: IMPLEMENT DEATH
-				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     			*/
+     			deathScreen.SetActive(true);
+     			LockMovement();
+     			isDead = true;
+     			Cursor.visible = true;
+        		Cursor.lockState = CursorLockMode.None;
      		}
      	}
      }
