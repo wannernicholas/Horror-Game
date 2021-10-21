@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Manager : MonoBehaviour
 {
@@ -22,31 +23,54 @@ public class Manager : MonoBehaviour
     void Update()
     {
         //if ( Input.GetKey(KeyCode.Escape) ){
-    	if ( Input.GetButtonDown("Cancel") ){
+    	if ( Input.GetButtonDown("Cancel") & !playerController.isDead ){
         	if(!paused){
-        		//THIS IS PAUSING THE GAME
-        		Time.timeScale = 0;
-        		paused = true;
-        		playerController.LockMovement();
-        		Cursor.visible = true;
-        		Cursor.lockState = CursorLockMode.None;
-        		AudioListener.pause = true;
-        		pauseMenu.SetActive(true);
-        		//do other stuff like make pause menu visible and put darkening filter over screen
+        		Pause();
         	}
         	
         	else{
-        		//THIS UNPAUSES THE GAME
-        		Time.timeScale = 1;
-        		paused = false;
-        		playerController.UnlockMovement();
-        		Cursor.visible = false;
-       			Cursor.lockState = CursorLockMode.Locked;
-       			AudioListener.pause = false;
-       			pauseMenu.SetActive(false);
-        		//remove pause menu/ filter
+        		UnPause();
         	}
 
         }
+    }
+    
+
+    public void Pause()
+    {
+    	Time.timeScale = 0;
+        paused = true;
+        playerController.LockMovement();
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        AudioListener.pause = true;
+        pauseMenu.SetActive(true);
+    }
+
+
+    public void UnPause()
+    {
+    	Time.timeScale = 1;
+        paused = false;
+        playerController.UnlockMovement();
+        Cursor.visible = false;
+       	Cursor.lockState = CursorLockMode.Locked;
+       	AudioListener.pause = false;
+       	pauseMenu.SetActive(false);
+        
+    }
+
+    public void ReloadScene()
+    {
+    	UnPause();
+    	Scene temp = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(temp.name);
+        StartCoroutine(WaitASec());
+        //yield return new WaitForSeconds(1);
+        SceneManager.SetActiveScene( temp );
+    }
+    IEnumerator WaitASec()
+    {
+    	yield return 0;
     }
 }
