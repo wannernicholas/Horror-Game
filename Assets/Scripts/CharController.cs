@@ -18,10 +18,15 @@ public class CharController : MonoBehaviour
 	public float lookXLimit = 45.0f;
 	public float pickupRange = 4.0f;
 
-    	public Text tooltip;
+    public Text tooltip;
 	public GameObject monster;
 	public GameObject deathScreen;
 	public bool isDead;
+
+    public AudioClip walkingSound;
+    public AudioClip runningSound;
+    private AudioSource audioSrc;
+
 	private MonterController monsterController;
 
 	CharacterController characterController;
@@ -45,6 +50,7 @@ public class CharController : MonoBehaviour
         deathScreen.SetActive(false);
         isDead = false;	
         tooltip.text = ""; 
+        audioSrc = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -67,6 +73,7 @@ public class CharController : MonoBehaviour
                     if (Input.GetMouseButtonDown(0)){
             		  inventory.Add(x);
             		  x.transform.position = new Vector3(999.0f,999.0f,999.0f);
+                      monsterController.BookPickedUp(this.transform.position);
                     }
             	}
 
@@ -87,16 +94,22 @@ public class CharController : MonoBehaviour
                 tooltip.text = ""; 
             }
       
-            // Crawling is prob gonna be using the ctrl keys, the sticky key was just driving me crazy.
-            //if ( Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ) {
+            // Crawling
             if ( Input.GetKey("space") ) {
             
             	//change scal
             	this.transform.localScale = new Vector3(1.0f,0.1f,1.0f);
             	curSpeedX = canMove ? crawlSpeed * Input.GetAxis("Vertical") : 0;
             	curSpeedY = canMove ? crawlSpeed * Input.GetAxis("Horizontal") : 0;
+                if( ((Mathf.Abs(curSpeedX) >0) || (Mathf.Abs(curSpeedY) > 0)) && (!audioSrc.isPlaying) ){
+                    audioSrc.clip = walkingSound;
+                    audioSrc.volume = Random.Range(0.05f,0.2f);
+                    audioSrc.pitch = Random.Range(0.8f,1.1f);
+                    audioSrc.Play();
+                    //monsterController.Alert(this.transform.position);
+                }
             }
-            //else if ( (this.transform.localScale != new Vector3(1.0f,1.0f,1.0f)) & !Input.GetKey(KeyCode.LeftControl) & !Input.GetKey(KeyCode.RightControl) ){
+            //if crouching but not holding button. 
             else if ( (this.transform.localScale != new Vector3(1.0f,1.0f,1.0f)) & (!Input.GetKey("space")) ){
             
             	//change scal
@@ -108,15 +121,27 @@ public class CharController : MonoBehaviour
             	}
             	curSpeedX = canMove ? crawlSpeed * Input.GetAxis("Vertical") : 0;
             	curSpeedY = canMove ? crawlSpeed * Input.GetAxis("Horizontal") : 0;
-
+                if( ((Mathf.Abs(curSpeedX) >0) || (Mathf.Abs(curSpeedY) > 0)) && (!audioSrc.isPlaying) ){
+                    audioSrc.clip = walkingSound;
+                    audioSrc.volume = Random.Range(0.05f,0.2f);
+                    audioSrc.pitch = Random.Range(0.8f,1.1f);
+                    audioSrc.Play();
+                    //monsterController.Alert(this.transform.position);
+                }
             }
             //If Running
-            else if ( Input.GetKey("right shift") || Input.GetKey("left shift")  & !Input.GetKey("right ctrl") & ! Input.GetKey("left ctrl")){
+            else if ( Input.GetKey("right shift") || Input.GetKey("left shift")  & !Input.GetKey("space") ){
             	curSpeedX = canMove ? runSpeed * Input.GetAxis("Vertical") : 0;
             	curSpeedY = canMove ? runSpeed * Input.GetAxis("Horizontal") : 0;
             	//If Moving alert monster
-            	if((curSpeedX >0) || (curSpeedY > 0)){
+            	if( (Mathf.Abs(curSpeedX) >0) || (Mathf.Abs(curSpeedY) > 0) ){
             		monsterController.Alert(this.transform.position);
+                    if (!audioSrc.isPlaying){
+                        audioSrc.clip = runningSound;
+                        audioSrc.volume = Random.Range(0.2f,0.3f);
+                        audioSrc.pitch = Random.Range(0.95f,1.1f);
+                        audioSrc.Play();
+                    }
             	}
             }
 
@@ -124,6 +149,13 @@ public class CharController : MonoBehaviour
             else {
             	curSpeedX = canMove ? walkSpeed * Input.GetAxis("Vertical") : 0;
             	curSpeedY = canMove ? walkSpeed * Input.GetAxis("Horizontal") : 0;
+                if( ((Mathf.Abs(curSpeedX) > 0) || (Mathf.Abs(curSpeedY) > 0)) && (!audioSrc.isPlaying) ){
+                    audioSrc.clip = walkingSound;
+                    audioSrc.volume = Random.Range(0.5f,0.2f);
+                    audioSrc.pitch = Random.Range(0.8f,1.1f);
+                    audioSrc.Play();
+                    //monsterController.Alert(this.transform.position);
+                }
             }
 
             
@@ -167,6 +199,12 @@ public class CharController : MonoBehaviour
     	canMove = true;
     }
 
+    IEnumerator WaitThenDeactivate(GameObject deactivethis)
+    {
+        yield return new WaitForSeconds(5);
+        Object.Destroy(deactivethis.gameObject);
+
+    }
 
     void OnTriggerEnter(Collider collision)
      {
@@ -184,6 +222,13 @@ public class CharController : MonoBehaviour
         		Cursor.lockState = CursorLockMode.None;
      		}
      	}
+        else if(collision.gameObject.tag == "KnockOver"){
+            monsterController.Alert(this.transform.position);
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //PLAY SOUND OF CREECKING FLOOR
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //StartCoroutine(WaitThenDeactivate(collision.gameObject));
+        }
      }
 
      void OnTriggerExit(Collider collision)

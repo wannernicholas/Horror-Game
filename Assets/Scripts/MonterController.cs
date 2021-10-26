@@ -12,10 +12,15 @@ public class MonterController : MonoBehaviour
 	private GameObject previousNode;
 	private List<GameObject> possibleNodes;
 	private float yPos;
-	public float speed = 1.0f;
-	
+	public float speed = 7.0f;
+	public float huntingSpeed = 10.0f;
 	public float searchTime = 10.0f;
+	public float minTeleportDist = 30.0f;
+	public float maxTeleportDist = 60.0f;
 	private float timeLeft;
+
+    public List<AudioClip> chainSfx = new List<AudioClip>();
+    private AudioSource audioSrc;
 
 	private Vector3 huntingPos;
 
@@ -42,6 +47,7 @@ public class MonterController : MonoBehaviour
         //print("Start "+previousNode.name);
         nodeList = GameObject.FindGameObjectsWithTag("Node");
         timeLeft = searchTime;
+        audioSrc = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -53,7 +59,12 @@ public class MonterController : MonoBehaviour
     	if (hunting){
     		Hunt();
     	}
-    	
+    	if(!audioSrc.isPlaying){
+            audioSrc.clip = chainSfx[Random.Range(0,chainSfx.Count)];
+            audioSrc.volume = Random.Range(0.3f,0.5f);
+            audioSrc.pitch = Random.Range(0.8f,1.1f);
+            audioSrc.Play();
+        }
     }
 
     //Called by other objects, changes it to hunting mode
@@ -75,8 +86,8 @@ public class MonterController : MonoBehaviour
     	}
     	//If its in searching mode and hasnt given up it will circle for searchTime before giving up.
     	if (searching & !gaveUp){
-			Vector3 v = new Vector3 (Mathf.Cos(timeLeft)*.1f, 0.0f, Mathf.Sin(timeLeft)*.1f);
-			this.transform.position = this.transform.position+ v;
+			Vector3 v = new Vector3 (Mathf.Cos(timeLeft)*.05f, 0.0f, Mathf.Sin(timeLeft)*.05f);
+			this.transform.position = this.transform.position+ v*Time.deltaTime;
     		timeLeft -= Time.deltaTime;
     		if(timeLeft <= 0){
     			timeLeft = searchTime;
@@ -96,6 +107,7 @@ public class MonterController : MonoBehaviour
     				dist = d;
     			}
     		}
+            previousNode = null;
     		targetNode = temp;
     		roaming = true;
     		hunting = false;
@@ -104,7 +116,10 @@ public class MonterController : MonoBehaviour
     	}
     	//just moving it towards its position
     	else{
-    		this.transform.position = Vector3.MoveTowards(this.transform.position, new Vector3(huntingPos.x,yPos,huntingPos.z), speed * Time.deltaTime);
+            //Vector3 targetDirection = target.position - transform.position;
+            //Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, speed*Time.deltaTime, 0.0f);
+    		//transform.rotation = Quaternion.LookRotation(newDirection);
+            this.transform.position = Vector3.MoveTowards(this.transform.position, new Vector3(huntingPos.x,yPos,huntingPos.z), huntingSpeed * Time.deltaTime);
     	}
     }
 
@@ -126,17 +141,35 @@ public class MonterController : MonoBehaviour
     	}
     	//If its not there keep moving
     	else {
+            //Vector3 targetDirection = target.position - transform.position;
+            //Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, speed*Time.deltaTime, 0.0f);
+            //transform.rotation = Quaternion.LookRotation(newDirection);
     		this.transform.position = Vector3.MoveTowards(this.transform.position,new Vector3(targetNode.transform.position.x,yPos,targetNode.transform.position.z),speed * Time.deltaTime);
     	}
     }
 
     //Changes speed to next speed in the table
-    void Speed_Up()
+    public void BookPickedUp(Vector3 pos)
     {
     	if(speedUps.Count > 0){
     		speed = speedUps[0];
     		speedUps.RemoveAt(0);
     	}
+        /* Unfortunatley I dont think this is worth it
+    	possibleNodes = new List<GameObject> ();
+    	float d;
+    	foreach (var obj in nodeList){
+    		d = (pos - obj.transform.position).sqrMagnitude;
+    		if (d > minTeleportDist && d < maxTeleportDist){
+    			possibleNodes.Add(obj);
+    		}
+    	}
+    	if (possibleNodes.Count > 0)
+    	{
+    		targetNode = possibleNodes[Random.Range(0,possibleNodes.Count)];
+    		this.transform.position = targetNode.transform.position;
+    	}
+        */
     	
     }
 }
