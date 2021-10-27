@@ -59,12 +59,14 @@ public class MonterController : MonoBehaviour
     	if (hunting){
     		Hunt();
     	}
-    	if(!audioSrc.isPlaying){
+    	/* DISABLED UNTIL I FIGURE OUT THE SOUND STUFF
+        if(!audioSrc.isPlaying){
             audioSrc.clip = chainSfx[Random.Range(0,chainSfx.Count)];
             audioSrc.volume = Random.Range(0.3f,0.5f);
             audioSrc.pitch = Random.Range(0.8f,1.1f);
             audioSrc.Play();
         }
+        */
     }
 
     //Called by other objects, changes it to hunting mode
@@ -116,9 +118,9 @@ public class MonterController : MonoBehaviour
     	}
     	//just moving it towards its position
     	else{
-            //Vector3 targetDirection = target.position - transform.position;
-            //Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, speed*Time.deltaTime, 0.0f);
-    		//transform.rotation = Quaternion.LookRotation(newDirection);
+            Vector3 targetDirection = new Vector3(this.transform.position.x- huntingPos.x , 0,this.transform.position.z - huntingPos.z );  //target.position - transform.position;
+            Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, speed*Time.deltaTime, 0.0f);
+    		this.transform.rotation = Quaternion.LookRotation(newDirection);
             this.transform.position = Vector3.MoveTowards(this.transform.position, new Vector3(huntingPos.x,yPos,huntingPos.z), huntingSpeed * Time.deltaTime);
     	}
     }
@@ -141,9 +143,9 @@ public class MonterController : MonoBehaviour
     	}
     	//If its not there keep moving
     	else {
-            //Vector3 targetDirection = target.position - transform.position;
-            //Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, speed*Time.deltaTime, 0.0f);
-            //transform.rotation = Quaternion.LookRotation(newDirection);
+            Vector3 targetDirection = new Vector3(this.transform.position.x- targetNode.transform.position.x , 0,this.transform.position.z- targetNode.transform.position.z );  //target.position - transform.position;
+            Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, speed*Time.deltaTime, 0.0f);
+            this.transform.rotation = Quaternion.LookRotation(newDirection);
     		this.transform.position = Vector3.MoveTowards(this.transform.position,new Vector3(targetNode.transform.position.x,yPos,targetNode.transform.position.z),speed * Time.deltaTime);
     	}
     }
