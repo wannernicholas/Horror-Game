@@ -15,6 +15,6 @@ public class StartGameButton : MonoBehaviour
     // Update is called once per frame
     void StartGame()
     {
-        SceneManager.LoadScene("Library2");
+        SceneManager.LoadScene("IntroLore");
     }
 }
