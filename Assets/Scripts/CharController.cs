@@ -28,6 +28,7 @@ public class CharController : MonoBehaviour
     private AudioSource audioSrc;
 
 	private MonterController monsterController;
+    private bool activlyPursued = false;
 
 	CharacterController characterController;
 	public Vector3 moveDirection = Vector3.zero;
@@ -74,6 +75,12 @@ public class CharController : MonoBehaviour
             		  inventory.Add(x);
             		  x.transform.position = new Vector3(999.0f,999.0f,999.0f);
                       monsterController.BookPickedUp(this.transform.position);
+                      if(x.name.Equals("Final Pickup")){
+                        activlyPursued = true;
+                        tooltip.text = "RUN";
+                        //tooltip.GetComponent<ToolTipSaysGTFO>().RUN();
+                      }
+                      //TODO MAYBE INCREASE OUTLINE WHEN YOU CAN PICK IT UP?
                     }
             	}
 
@@ -90,7 +97,7 @@ public class CharController : MonoBehaviour
             	}
             }
 
-            else{
+            else if(!activlyPursued){
                 tooltip.text = ""; 
             }
       
@@ -158,7 +165,10 @@ public class CharController : MonoBehaviour
                 }
             }
 
-            
+            if(activlyPursued){
+                tooltip.text = "RUN";
+                monsterController.Alert(this.transform.position);
+            }
             
             moveDirection = (forward * curSpeedX) + (right * curSpeedY);
 

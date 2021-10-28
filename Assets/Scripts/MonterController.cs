@@ -77,6 +77,9 @@ public class MonterController : MonoBehaviour
     	hunting = true;
     	searching = false;
     	gaveUp = false;
+    	//~~~~~~~~~~~~~~~~~~~~~
+    	//Play Screetching Sound Effect
+    	//~~~~~~~~~~~~~~~~~~~~~~~~~
     }
 
     //Happens When it recives a location to check out
