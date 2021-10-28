@@ -12990,13 +12990,13 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 70
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '[Pending title]'
+  m_Text: Book it!
 --- !u!222 &1640082915
 CanvasRenderer:
   m_ObjectHideFlags: 0
