@@ -91,7 +91,7 @@ public class MonterController : MonoBehaviour
     	}
     	//If its in searching mode and hasnt given up it will circle for searchTime before giving up.
     	if (searching & !gaveUp){
-			Vector3 v = new Vector3 (Mathf.Cos(timeLeft)*.05f, 0.0f, Mathf.Sin(timeLeft)*.05f);
+			Vector3 v = new Vector3 (Mathf.Cos(timeLeft*Time.fixedTime), 0.0f, Mathf.Sin(timeLeft * Time.fixedTime));
 			this.transform.position = this.transform.position+ v*Time.deltaTime;
     		timeLeft -= Time.deltaTime;
     		if(timeLeft <= 0){

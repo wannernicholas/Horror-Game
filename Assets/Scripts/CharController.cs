@@ -16,7 +16,7 @@ public class CharController : MonoBehaviour
 	public Camera playerCamera;
 	public float lookSpeed = 2.0f;
 	public float lookXLimit = 45.0f;
-	public float pickupRange = 4.0f;
+	public float pickupRange = 2.0f;
 
     public Text tooltip;
 	public GameObject monster;
@@ -25,6 +25,8 @@ public class CharController : MonoBehaviour
 
     public AudioClip walkingSound;
     public AudioClip runningSound;
+    public GameObject SFXPlayer;
+    
     private AudioSource audioSrc;
 
 	private MonterController monsterController;
@@ -73,6 +75,7 @@ public class CharController : MonoBehaviour
                     tooltip.text = "Left Click to pick up"; 
                     if (Input.GetMouseButtonDown(0)){
             		  inventory.Add(x);
+            		  SFXPlayer.GetComponent<SoundEffectsPlayer>().GrabBook(); // audioSrc.PlayOneShot(bookGrab,0.55f);
             		  x.transform.position = new Vector3(999.0f,999.0f,999.0f);
                       monsterController.BookPickedUp(this.transform.position);
                       if(x.name.Equals("Final Pickup")){
@@ -91,6 +94,7 @@ public class CharController : MonoBehaviour
             			     Receptor y = x.GetComponent<Receptor>();
             			     y.AddBook(inventory[0]);
             			     inventory.RemoveAt(0);
+            			     SFXPlayer.GetComponent<SoundEffectsPlayer>().PlaceBook(); //audioSrc.PlayOneShot(bookPlace,0.55f);
                         }
                          
             		}
@@ -232,12 +236,10 @@ public class CharController : MonoBehaviour
         		Cursor.lockState = CursorLockMode.None;
      		}
      	}
-        else if(collision.gameObject.tag == "KnockOver"){
+        else if(collision.gameObject.tag == "FloorBoard"){
             monsterController.Alert(this.transform.position);
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            //PLAY SOUND OF CREECKING FLOOR
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            //StartCoroutine(WaitThenDeactivate(collision.gameObject));
+            SFXPlayer.GetComponent<SoundEffectsPlayer>().CreeckFloor();
+            //audioSrc.PlayOneShot(creeckingFloorboard,0.85f);
         }
      }
 

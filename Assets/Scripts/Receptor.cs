@@ -10,14 +10,17 @@ public class Receptor : MonoBehaviour
     public float amplitude = 0.5f;
     public float frequency = 1f;
     public float fallSpeed = 1f;
+    public AudioClip rumble;
 	[SerializeField]
 	private List<GameObject> positions = new List<GameObject>();
 	private bool[] isPlaced;
     private bool full;
-
+    private AudioSource audioSrc;
     // Start is called before the first frame update
     void Start()
     {
+        audioSrc = GetComponent<AudioSource>();
+        audioSrc.clip = rumble;
         isPlaced = new bool[positions.Count];
         int i = 0;
         while (i< positions.Count){
@@ -33,6 +36,9 @@ public class Receptor : MonoBehaviour
     void Update()
     {
         if (full){
+            if (!audioSrc.isPlaying){
+                audioSrc.Play();
+            }
             Vector3 temp = wallToRemove.transform.position;
             temp.x = ogX +Mathf.Sin ( Time.fixedTime *Mathf.PI * frequency) * amplitude;
             temp.z = ogZ +Mathf.Sin ( Time.fixedTime *Mathf.PI * frequency) * amplitude;
@@ -41,6 +47,7 @@ public class Receptor : MonoBehaviour
             //PLAY RUMBLE SOUND EFFECT
             if(wallToRemove.transform.position.y <= -5.25){
                 full = false;
+                audioSrc.Stop();
                 //Debug.Log("At Bottom");
             }
         }
