@@ -15,11 +15,11 @@ public class MonterController : MonoBehaviour
 	public float speed = 7.0f;
 	public float huntingSpeed = 10.0f;
 	public float searchTime = 10.0f;
-	public float minTeleportDist = 30.0f;
-	public float maxTeleportDist = 60.0f;
+	//public float minTeleportDist = 30.0f;
+	//public float maxTeleportDist = 60.0f;
 	private float timeLeft;
 
-    public List<AudioClip> chainSfx = new List<AudioClip>();
+    //public List<AudioClip> chainSfx = new List<AudioClip>();
     private AudioSource audioSrc;
 
 	private Vector3 huntingPos;
@@ -46,7 +46,7 @@ public class MonterController : MonoBehaviour
         previousNode = startNode;
         //print("Start "+previousNode.name);
         nodeList = GameObject.FindGameObjectsWithTag("Node");
-        timeLeft = searchTime;
+        timeLeft = 0.0f;
         audioSrc = GetComponent<AudioSource>();
     }
 
@@ -91,11 +91,14 @@ public class MonterController : MonoBehaviour
     	}
     	//If its in searching mode and hasnt given up it will circle for searchTime before giving up.
     	if (searching & !gaveUp){
-			Vector3 v = new Vector3 (Mathf.Cos(timeLeft*Time.fixedTime), 0.0f, Mathf.Sin(timeLeft * Time.fixedTime));
-			this.transform.position = this.transform.position+ v*Time.deltaTime;
-    		timeLeft -= Time.deltaTime;
-    		if(timeLeft <= 0){
-    			timeLeft = searchTime;
+            float x = Mathf.Cos(timeLeft * speed) *.15f;
+            float z = Mathf.Sin(timeLeft * speed) *.15f;
+            Vector3 temp = new Vector3(x,0.0f,z);
+
+            this.transform.position = this.transform.position + (temp*Time.timeScale);
+    		timeLeft += Time.deltaTime;
+    		if(timeLeft >= searchTime){
+    			timeLeft = 0.0f;
     			gaveUp = true;
     		}
     	}

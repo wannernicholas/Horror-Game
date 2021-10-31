@@ -26,6 +26,7 @@ public class CharController : MonoBehaviour
     public AudioClip walkingSound;
     public AudioClip runningSound;
     public GameObject SFXPlayer;
+    public GameObject BGPlayer;
     
     private AudioSource audioSrc;
 
@@ -88,6 +89,20 @@ public class CharController : MonoBehaviour
             	}
 
             	else if (x.tag.Equals("Receptor")){
+                    if(inventory.Count > 0)
+                    {
+                        tooltip.text = "Left Click to drop off";
+                        if (Input.GetMouseButtonDown(0)){
+                            if(inventory.Count >0){
+                                Receptor y = x.GetComponent<Receptor>();
+                                y.AddBook(inventory[0]);
+                                inventory.RemoveAt(0);
+                                SFXPlayer.GetComponent<SoundEffectsPlayer>().PlaceBook(); //audioSrc.PlayOneShot(bookPlace,0.55f);
+                            }
+                         
+                        }
+                    }
+                    /*
                     tooltip.text = "Left Click to drop off";
             		if (Input.GetMouseButtonDown(0)){
                         if(inventory.Count >0){
@@ -97,7 +112,7 @@ public class CharController : MonoBehaviour
             			     SFXPlayer.GetComponent<SoundEffectsPlayer>().PlaceBook(); //audioSrc.PlayOneShot(bookPlace,0.55f);
                         }
                          
-            		}
+            		}*/
             	}
             }
 
@@ -149,7 +164,7 @@ public class CharController : MonoBehaviour
             		monsterController.Alert(this.transform.position);
                     if (!audioSrc.isPlaying){
                         audioSrc.clip = runningSound;
-                        audioSrc.volume = Random.Range(0.2f,0.3f);
+                        audioSrc.volume = Random.Range(0.3f,0.45f);
                         audioSrc.pitch = Random.Range(0.95f,1.1f);
                         audioSrc.Play();
                     }
@@ -228,7 +243,7 @@ public class CharController : MonoBehaviour
      	}
      	else if (collision.gameObject.tag == "Death"){
      		if (!hidden){
-     			Debug.Log("You dead boi");
+     			//Debug.Log("You dead boi");
      			deathScreen.SetActive(true);
      			LockMovement();
      			isDead = true;
@@ -241,6 +256,12 @@ public class CharController : MonoBehaviour
             SFXPlayer.GetComponent<SoundEffectsPlayer>().CreeckFloor();
             //audioSrc.PlayOneShot(creeckingFloorboard,0.85f);
         }
+        else if(collision.gameObject.tag == "MusicChange"){
+            BGPlayer.GetComponent<BGMusicManager>().SwitchToChase();
+        }
+        else if(collision.gameObject.tag == "ChainRange"){
+            BGPlayer.GetComponent<BGMusicManager>().EnableChains();
+        }
      }
 
      void OnTriggerExit(Collider collision)
@@ -249,5 +270,11 @@ public class CharController : MonoBehaviour
      		hidden = false;
      		//Debug.Log("No Longer Hidden");
      	}
+        else if(collision.gameObject.tag == "MusicChange"){
+            BGPlayer.GetComponent<BGMusicManager>().SwitchToAmbient();
+        }
+        else if(collision.gameObject.tag == "ChainRange"){
+            BGPlayer.GetComponent<BGMusicManager>().DisableChains();
+        }
      }
 }
