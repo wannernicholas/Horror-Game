@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 [RequireComponent (typeof(CharacterController))]
 
@@ -40,6 +41,11 @@ public class CharController : MonoBehaviour
 
 	private bool hidden = false;
 
+	public GameObject chain1;
+	public GameObject chain2;
+	public GameObject spookyImage;
+	//private bool atDoor = false;
+
 	//Stuff for pickup
 	
 	//private List<GameObject> pickupsInRange = new List<GameObject>();
@@ -55,6 +61,9 @@ public class CharController : MonoBehaviour
         isDead = false;	
         tooltip.text = ""; 
         audioSrc = GetComponent<AudioSource>();
+        chain1.SetActive(false);
+     	chain2.SetActive(false);
+     	spookyImage.SetActive(false);
     }
 
     // Update is called once per frame
@@ -114,6 +123,9 @@ public class CharController : MonoBehaviour
                          
             		}*/
             	}
+            	else if(x.tag.Equals("EndZone") && !activlyPursued){
+            		tooltip.text = "Hmm... Seems to be locked";
+            	}
             }
 
             else if(!activlyPursued){
@@ -162,6 +174,7 @@ public class CharController : MonoBehaviour
             	//If Moving alert monster
             	if( (Mathf.Abs(curSpeedX) >0) || (Mathf.Abs(curSpeedY) > 0) ){
             		monsterController.Alert(this.transform.position);
+            		//SFXPlayer.GetComponent<SoundEffectsPlayer>().MonsterGrowl();
                     if (!audioSrc.isPlaying){
                         audioSrc.clip = runningSound;
                         audioSrc.volume = Random.Range(0.3f,0.45f);
@@ -228,10 +241,20 @@ public class CharController : MonoBehaviour
     	canMove = true;
     }
 
-    IEnumerator WaitThenDeactivate(GameObject deactivethis)
+    //Plays death animation
+    IEnumerator WaitASec()
     {
-        yield return new WaitForSeconds(5);
-        Object.Destroy(deactivethis.gameObject);
+    	chain1.SetActive(true);
+     	chain2.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        spookyImage.SetActive(true);
+        isDead = true;
+        yield return new WaitForSeconds(.65f);
+        deathScreen.SetActive(true);
+     	//spookyImage.SetActive(false);
+     	Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        //Object.Destroy(deactivethis.gameObject);
 
     }
 
@@ -244,11 +267,10 @@ public class CharController : MonoBehaviour
      	else if (collision.gameObject.tag == "Death"){
      		if (!hidden){
      			//Debug.Log("You dead boi");
-     			deathScreen.SetActive(true);
+     			//deathScreen.SetActive(true);
      			LockMovement();
-     			isDead = true;
-     			Cursor.visible = true;
-        		Cursor.lockState = CursorLockMode.None;
+     			
+     			StartCoroutine(WaitASec());
      		}
      	}
         else if(collision.gameObject.tag == "FloorBoard"){
@@ -261,6 +283,18 @@ public class CharController : MonoBehaviour
         }
         else if(collision.gameObject.tag == "ChainRange"){
             BGPlayer.GetComponent<BGMusicManager>().EnableChains();
+        }
+        else if(collision.gameObject.tag == "EndZone"){
+            //BGPlayer.GetComponent<BGMusicManager>().EnableChains();
+            if(activlyPursued){
+            	Cursor.visible = true;
+        		Cursor.lockState = CursorLockMode.None;
+            	SceneManager.LoadScene("OutroLore");
+            }
+            //else{
+            //	atDoor = true;
+            //	tooltip.text = "Hmm... Seems to be locked"; 
+            //}
         }
      }
 
@@ -276,5 +310,10 @@ public class CharController : MonoBehaviour
         else if(collision.gameObject.tag == "ChainRange"){
             BGPlayer.GetComponent<BGMusicManager>().DisableChains();
         }
+        //else if(collision.gameObject.tag == "EndZone"){
+            //BGPlayer.GetComponent<BGMusicManager>().EnableChains()
+        //    tooltip.text = ""; 
+        //    atDoor = false;
+        //}
      }
 }
